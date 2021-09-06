@@ -1,0 +1,7 @@
+esp32
+8x8x8
+full rgb
+74hc595
+per led brightness - software pwm - http://www.batsocks.co.uk/readme/art_bcm_3.htm
+avoid libraries
+probably wifi control?
