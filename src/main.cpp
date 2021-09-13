@@ -2,50 +2,64 @@
 #include <SPI.h>
 #include <analogWrite.h>
 
-uint8_t oe = 27;
-uint8_t latch = 25;
-uint8_t reset = 24;
+constexpr uint32_t latch = 17;
+constexpr uint32_t latchPin = 1 << 17;
+constexpr uint32_t oe = 16;
+constexpr uint32_t reset = 4;
+
+void Update();
+SPISettings setting(2 * pow(10, 6), MSBFIRST, SPI_MODE0);
+int8_t matrix[8][8] = {0};
 
 void setup() {
     SPI.begin();
-    // digitalWrite(latch, LOW);
-    // SPI.transfer(0b1);
-    // digitalWrite(latch, HIGH);
     Serial.begin(9600);
     pinMode(oe, OUTPUT);
     pinMode(latch, OUTPUT);
     pinMode(reset, OUTPUT);
-    pinMode(2, OUTPUT);
     digitalWrite(oe, LOW);
     digitalWrite(latch, LOW);
     digitalWrite(reset, HIGH);
+    for (int i = 0; i < 8; i++)
+        for (int j = 0; j < 8; j++)
+                matrix[i][j] = 1 << j;
 }
-void Update();
-SPISettings setting(10000000, MSBFIRST, SPI_MODE1);
 
-uint8_t data = 0;
-bool increasing = false;
+uint16_t delayTime = 100;
 void loop() {
     Update();
     if (Serial.available())
     {
         char in = Serial.read();
-        data = in - '0';
-        Serial.print(data);
+        if (in == '+')
+            delayTime += 1;
+        else if (in == '-')
+            delayTime -= 1;
+        Serial.println(delayTime);
     }
-    uint16_t touch = touchRead(15);
-    analogWrite(LED_BUILTIN, map(65 - touch, 0, 65, 0, 255));
 }
 
 void Update()
 {
     static uint32_t lastUpdateTime = 0;
-    if (millis() - lastUpdateTime < 100) return;
-    lastUpdateTime = millis();
+    // if (millis() - lastUpdateTime < delayTime) return;
+    // lastUpdateTime = millis();
+    static uint32_t count = 0;
+    count++;
 
     SPI.beginTransaction(setting);
-    digitalWrite(latch, LOW);
-    SPI.transfer(1 << data);
-    digitalWrite(latch, HIGH);
+    for (int i = 0; i < 8; i++)
+        for (int j = 0; j < 8; j++)
+        {
+            SPI.transfer(matrix[i][j]);
+            GPIO.out_w1ts = latchPin;
+            GPIO.out_w1tc = latchPin;
+        }
     SPI.endTransaction();
+    if (millis() - lastUpdateTime >= 1000)
+    {
+        lastUpdateTime = millis();
+        Serial.println(count);
+        count = 0;
+    }
 }
