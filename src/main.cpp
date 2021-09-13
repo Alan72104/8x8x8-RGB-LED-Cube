@@ -21,7 +21,7 @@ void setup() {
     digitalWrite(reset, HIGH);
 }
 void Update();
-SPISettings setting(10000000, MSBFIRST, SPI_MODE0);
+SPISettings setting(10000000, MSBFIRST, SPI_MODE1);
 
 uint8_t data = 0;
 bool increasing = false;
