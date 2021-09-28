@@ -8,8 +8,13 @@ constexpr uint32_t oe = 16;
 constexpr uint32_t reset = 4;
 
 void Update();
+void IRAM_ATTR OnTimerInterrupt();
 SPISettings setting(2 * pow(10, 6), MSBFIRST, SPI_MODE0);
-int8_t matrix[8][8] = {0};
+hw_timer_t* timer = nullptr;
+portMUX_TYPE timerMux = portMUX_INITIALIZER_UNLOCKED;
+volatile uint32_t interruptCounter = 0;
+uint32_t totalInterruptCounter = 0;
+uint16_t data = 1;
 
 void setup() {
     SPI.begin();
@@ -20,42 +25,76 @@ void setup() {
     digitalWrite(oe, LOW);
     digitalWrite(latch, LOW);
     digitalWrite(reset, HIGH);
-    for (int i = 0; i < 8; i++)
-        for (int j = 0; j < 8; j++)
-                matrix[i][j] = 1 << j;
+
+    timer = timerBegin(0, 80, true);
+    timerAttachInterrupt(timer, &OnTimerInterrupt, true);
+    timerAlarmWrite(timer, 1000000, true);
+    timerAlarmEnable(timer);
 }
 
 uint16_t delayTime = 100;
 void loop() {
-    Update();
-    if (Serial.available())
+    // SPI.beginTransaction(setting);
+    // SPI.transfer16(1);
+    // GPIO.out_w1ts = latchPin;
+    // GPIO.out_w1tc = latchPin;
+    // SPI.endTransaction();
+    // Update();
+    // if (Serial.available())
+    // {
+    //     char in = Serial.read();
+    //     if (in == '+')
+    //         delayTime += 1;
+    //     else if (in == '-')
+    //         delayTime -= 1;
+    //     Serial.println(delayTime);
+    // }
+ 
+    if (interruptCounter > 0)
     {
-        char in = Serial.read();
-        if (in == '+')
-            delayTime += 1;
-        else if (in == '-')
-            delayTime -= 1;
-        Serial.println(delayTime);
+        portENTER_CRITICAL(&timerMux);
+        interruptCounter--;
+        portEXIT_CRITICAL(&timerMux);
+    
+        totalInterruptCounter++;
+    
+        Serial.print("An interrupt as occurred. Total number: ");
+        Serial.println(totalInterruptCounter);
+    
     }
+}
+
+void IRAM_ATTR OnTimerInterrupt()
+{
+    portENTER_CRITICAL_ISR(&timerMux);
+    interruptCounter++;
+
+    SPI.beginTransaction(setting);
+    SPI.transfer16(data);
+    GPIO.out_w1ts = latchPin;
+    GPIO.out_w1tc = latchPin;
+    data++;
+    SPI.endTransaction();
+
+    portEXIT_CRITICAL_ISR(&timerMux);
 }
 
 void Update()
 {
     static uint32_t lastUpdateTime = 0;
-    // if (millis() - lastUpdateTime < delayTime) return;
-    // lastUpdateTime = millis();
+    if (millis() - lastUpdateTime < delayTime) return;
+    lastUpdateTime = millis();
     static uint32_t count = 0;
     count++;
 
     SPI.beginTransaction(setting);
-    for (int i = 0; i < 8; i++)
-        for (int j = 0; j < 8; j++)
-        {
-            SPI.transfer(matrix[i][j]);
-            GPIO.out_w1ts = latchPin;
-            GPIO.out_w1tc = latchPin;
-        }
+    SPI.transfer16(data);
+    GPIO.out_w1ts = latchPin;
+    GPIO.out_w1tc = latchPin;
+    data++;
+
     SPI.endTransaction();
+
     if (millis() - lastUpdateTime >= 1000)
     {
         lastUpdateTime = millis();
