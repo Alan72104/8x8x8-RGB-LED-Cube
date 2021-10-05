@@ -13,7 +13,7 @@ void UpdateData();
 template <typename T>
 void PrintBinary(T v);
 void IRAM_ATTR OnTimerInterrupt();
-SPISettings setting(2 * pow(10, 6), MSBFIRST, SPI_MODE0);
+SPISettings setting(30 * pow(10, 6), MSBFIRST, SPI_MODE0);
 hw_timer_t* timer = nullptr;
 portMUX_TYPE timerMux = portMUX_INITIALIZER_UNLOCKED;
 volatile uint32_t interruptCounter = 0;
@@ -112,13 +112,25 @@ void loop() {
                 break;
         }
     }
+
+    static uint32_t tttt = 0;
+    static uint32_t lastShift = 0;
+    portENTER_CRITICAL(&timerMux);
+    if (millis() - lastShift >= 10)
+    {
+        tttt = micros();
+        lastShift = millis();
+        brightnessStart++;
+        UpdateData();
+        tttt = micros() - tttt;
+    }
+    portEXIT_CRITICAL(&timerMux);
     
     static uint32_t lastTime = 0;
-    if (micros() - lastTime > 1000000)
+    if (micros() - lastTime >= 1000000)
     {
         lastTime = micros();
 
-        portENTER_CRITICAL(&timerMux);
         Serial.print("output changes: ");
         Serial.println(t);
         Serial.print("hz: ");
@@ -127,7 +139,8 @@ void loop() {
         Serial.print("interrupt count: ");
         Serial.println(interruptCounter);
         interruptCounter = 0;
-        portEXIT_CRITICAL(&timerMux);
+        Serial.print("ns taken to update: ");
+        Serial.println(tttt);
     }
 }
 
