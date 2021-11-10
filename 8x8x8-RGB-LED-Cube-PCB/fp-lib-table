@@ -1,0 +1,4 @@
+(fp_lib_table
+  (lib (name Connector_PinHeader_2.00mm)(type KiCad)(uri ${KIPRJMOD}/footprints/Connector_PinHeader_2.00mm.pretty)(options "")(descr ""))
+  (lib (name LED-Cube)(type KiCad)(uri ${KIPRJMOD}/footprints/LED-Cube.pretty)(options "")(descr ""))
+)

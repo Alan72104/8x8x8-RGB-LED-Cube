@@ -50,9 +50,22 @@ void setup() {
 
 void UpdateData()
 {
-    for (uint8_t i = 0; i < 16; i++)
-        data[i] = brightnessStart + i;
-    GenerateBamData();
+    static uint32_t lastUpdate = 0;
+    static uint8_t n = 0;
+    static uint8_t nn = 2;
+    if (micros() - lastUpdate >= 50000)
+    {
+        lastUpdate = micros();
+        n += nn;
+        if (n == 128)
+            nn = -2;
+        else if (n == 0)
+            nn = 2;
+        data[0] = data[2] = n;
+        GenerateBamData();
+    }
+    // for (uint8_t i = 0; i < 16; i++)
+        // data[i] = brightnessStart + i;
 
     // for (uint32_t i = 0; i < 16; i++)
     // {
@@ -112,20 +125,18 @@ void loop() {
                 break;
         }
     }
-
-    static uint32_t tttt = 0;
-    static uint32_t lastShift = 0;
-    portENTER_CRITICAL(&timerMux);
-    if (millis() - lastShift >= 10)
+    static uint32_t lastTouchTime = 0;
+    if (micros() - 500000 >= lastTouchTime)
     {
-        tttt = micros();
-        lastShift = millis();
-        brightnessStart++;
-        UpdateData();
-        tttt = micros() - tttt;
+        lastTouchTime = micros();
+        Serial.println(touchRead(15));
     }
+
+    portENTER_CRITICAL(&timerMux);
+    UpdateData();
     portEXIT_CRITICAL(&timerMux);
     
+    static uint32_t tttt = 0;
     static uint32_t lastTime = 0;
     if (micros() - lastTime >= 1000000)
     {

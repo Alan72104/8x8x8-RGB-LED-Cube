@@ -1,0 +1,6 @@
+(sym_lib_table
+  (lib (name LED-Cube)(type Legacy)(uri ${KIPRJMOD}/footprints/LED-Cube.lib)(options "")(descr ""))
+  (lib (name 8x8x8-RGB-LED-Cube-PCB-cache)(type Legacy)(uri ${KIPRJMOD}/8x8x8-RGB-LED-Cube-PCB-cache.lib)(options "")(descr ""))
+  (lib (name ESP32-DEVKITC-32D)(type Legacy)(uri ${KIPRJMOD}/footprints/ESP32-DEVKITC-32D.lib)(options "")(descr ""))
+  (lib (name ESC_Pads)(type Legacy)(uri ${KIPRJMOD}/footprints/ESCPT/ESC_Pads.lib)(options "")(descr ""))
+)
