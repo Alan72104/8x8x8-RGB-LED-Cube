@@ -1,4 +1,6 @@
 (fp_lib_table
   (lib (name Connector_PinHeader_2.00mm)(type KiCad)(uri ${KIPRJMOD}/footprints/Connector_PinHeader_2.00mm.pretty)(options "")(descr ""))
   (lib (name LED-Cube)(type KiCad)(uri ${KIPRJMOD}/footprints/LED-Cube.pretty)(options "")(descr ""))
+  (lib (name ESP32-DEVKITC-32D)(type KiCad)(uri ${KIPRJMOD}/footprints/ESP32-DEVKITC-32D.pretty)(options "")(descr ""))
+  (lib (name ESC_Pads)(type KiCad)(uri ${KIPRJMOD}/footprints/ESCPT/ESC_Pads.pretty)(options "")(descr ""))
 )

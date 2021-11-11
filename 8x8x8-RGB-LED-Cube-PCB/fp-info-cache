@@ -1,4 +1,4 @@
-19214740299471254
+19226195961839492
 Battery
 BatteryHolder_Bulgin_BX0036_1xC
 Bulgin Battery Holder, BX0036, Battery Type C (https://www.bulgin.com/products/pub/media/bulgin/data/Battery_holders.pdf)
@@ -50714,6 +50714,48 @@ One digit LED 7 segment SA39-11 SC39-11 SA39-12 SC39-12
 0
 10
 10
+ESC_Pads
+ESC_Pad_A
+
+
+0
+8
+3
+ESC_Pads
+ESC_Pad_B
+
+
+0
+5
+3
+ESC_Pads
+ESC_Pad_C
+
+
+0
+7
+3
+ESC_Pads
+ESC_Pad_D
+
+
+0
+4
+2
+ESC_Pads
+ESC_Pad_Q_reversible
+
+
+0
+10
+5
+ESP32-DEVKITC-32D
+MODULE_ESP32-DEVKITC-32D
+
+
+0
+38
+38
 Ferrite_THT
 LairdTech_28C0236-0JW-10
 Ferrite, vertical, LairdTech 28C0236-0JW-10, https://assets.lairdtech.com/home/brandworld/files/28C0236-0JW-10.pdf, JW Miller core https://www.bourns.com/products/magnetic-products/j.w.-miller-through-hole-ferrite-beads-emi-filters
@@ -55094,8 +55136,15 @@ ESP32-DevKitC
 
 
 0
+38
 19
-19
+LED-Cube
+SW_TACTILE_12x12mm
+
+
+0
+4
+4
 LED_SMD
 LED-APA102-2020
 http://www.led-color.com/upload/201604/APA102-2020%20SMD%20LED.pdf
