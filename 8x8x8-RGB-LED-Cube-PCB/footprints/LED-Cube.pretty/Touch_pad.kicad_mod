@@ -1,0 +1,11 @@
+(module Touch_pad (layer F.Cu) (tedit 6192FC7D)
+  (fp_text reference Ref** (at 0 6) (layer F.SilkS) hide
+    (effects (font (size 1.27 1.27) (thickness 0.15)))
+  )
+  (fp_text value Val** (at 0 -6) (layer F.SilkS) hide
+    (effects (font (size 1.27 1.27) (thickness 0.15)))
+  )
+  (fp_circle (center 0 0) (end 5 0) (layer Dwgs.User) (width 0.12))
+  (pad 1 smd circle (at 0 0) (size 10 10) (layers F.Cu)
+    (zone_connect 2))
+)

@@ -51,4 +51,40 @@ X GND ~ 500 900 100 L 50 50 1 1 I
 ENDDRAW
 ENDDEF
 #
+# Touch_pad
+#
+DEF Touch_pad TOUCH 0 40 Y Y 1 F N
+F0 "TOUCH" 0 -100 50 H V C CNN
+F1 "Touch_pad" 0 100 50 H V C CNN
+F2 "" 0 0 50 H I C CNN
+F3 "" 0 0 50 H I C CNN
+DRAW
+X ~ 1 0 0 100 R 50 50 1 1 B
+ENDDRAW
+ENDDEF
+#
+# Wire_hole_1.2_2.5
+#
+DEF Wire_hole_1.2_2.5 H 0 40 Y Y 1 F N
+F0 "H" 0 200 50 H V C CNN
+F1 "Wire_hole_1.2_2.5" 0 100 50 H V C CNN
+F2 "" 100 0 50 H I C CNN
+F3 "" 100 0 50 H I C CNN
+DRAW
+X ~ ~ 0 0 100 D 50 50 1 1 B
+ENDDRAW
+ENDDEF
+#
+# Wire_pad
+#
+DEF Wire_pad PAD 0 40 Y Y 1 F N
+F0 "PAD" 0 -100 50 H V C CNN
+F1 "Wire_pad" 0 100 50 H V C CNN
+F2 "" 0 0 50 H I C CNN
+F3 "" 0 0 50 H I C CNN
+DRAW
+X ~ 1 0 0 100 R 50 50 1 1 I
+ENDDRAW
+ENDDEF
+#
 #End Library
