@@ -1,4 +1,4 @@
-19236017545184836
+19239291889059673
 Battery
 BatteryHolder_Bulgin_BX0036_1xC
 Bulgin Battery Holder, BX0036, Battery Type C (https://www.bulgin.com/products/pub/media/bulgin/data/Battery_holders.pdf)
@@ -55139,6 +55139,13 @@ ESP32-DevKitC
 38
 19
 LED-Cube
+LED_cube
+
+
+0
+0
+0
+LED-Cube
 SW_TACTILE_12x12mm
 
 
@@ -55166,6 +55173,13 @@ Solder_pad_5x5mm
 0
 1
 1
+LED-Cube
+Terminal_block
+
+
+0
+4
+2
 LED-Cube
 Touch_pad
 

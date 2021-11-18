@@ -51,6 +51,22 @@ X GND ~ 500 900 100 L 50 50 1 1 I
 ENDDRAW
 ENDDEF
 #
+# Terminal_block
+#
+DEF Terminal_block TB 0 40 Y Y 1 F N
+F0 "TB" 0 250 50 H V C CNN
+F1 "Terminal_block" 0 325 50 H V C CNN
+F2 "" 0 0 50 H I C CNN
+F3 "" 0 0 50 H I C CNN
+DRAW
+C 100 100 50 0 1 0 N
+C -100 100 50 1 1 0 N
+S 200 0 -200 200 0 1 0 N
+X ~ 1 100 -100 100 U 50 50 1 1 I
+X ~ 2 -100 -100 100 U 50 50 1 1 I
+ENDDRAW
+ENDDEF
+#
 # Touch_pad
 #
 DEF Touch_pad TOUCH 0 40 Y Y 1 F N

@@ -8119,12 +8119,12 @@ $EndComp
 $Comp
 L Connector:Barrel_Jack_Switch DC1
 U 1 1 618C7052
-P 1650 7500
-F 0 "DC1" H 1707 7817 50  0000 C CNN
-F 1 "Barrel_Jack_Switch" H 1707 7726 50  0000 C CNN
-F 2 "Connector_BarrelJack:BarrelJack_Horizontal" H 1700 7460 50  0001 C CNN
-F 3 "~" H 1700 7460 50  0001 C CNN
-	1    1650 7500
+P 1500 7250
+F 0 "DC1" H 1557 7567 50  0000 C CNN
+F 1 "Barrel_Jack_Switch" H 1557 7476 50  0000 C CNN
+F 2 "Connector_BarrelJack:BarrelJack_Horizontal" H 1550 7210 50  0001 C CNN
+F 3 "~" H 1550 7210 50  0001 C CNN
+	1    1500 7250
 	1    0    0    -1  
 $EndComp
 $Comp
@@ -10322,7 +10322,7 @@ F 3 "http://www.ti.com/lit/ds/symlink/sn74hc595.pdf" H 7200 2850 50  0001 C CNN
 	0    -1   -1   0   
 $EndComp
 Text Label 11250 16100 1    50   ~ 0
-Layer7
+Layer8
 Text Label 11150 16100 1    50   ~ 0
 Layer7
 Text Label 11050 16100 1    50   ~ 0
@@ -10499,23 +10499,23 @@ $EndComp
 $Comp
 L power:GND #PWR0256
 U 1 1 618C333D
-P 1950 7600
-F 0 "#PWR0256" H 1950 7350 50  0001 C CNN
-F 1 "GND" V 1955 7472 50  0000 R CNN
-F 2 "" H 1950 7600 50  0001 C CNN
-F 3 "" H 1950 7600 50  0001 C CNN
-	1    1950 7600
+P 1800 7350
+F 0 "#PWR0256" H 1800 7100 50  0001 C CNN
+F 1 "GND" V 1805 7222 50  0000 R CNN
+F 2 "" H 1800 7350 50  0001 C CNN
+F 3 "" H 1800 7350 50  0001 C CNN
+	1    1800 7350
 	0    -1   -1   0   
 $EndComp
 $Comp
 L power:+5V #PWR0253
 U 1 1 618C1D3E
-P 1950 7400
-F 0 "#PWR0253" H 1950 7250 50  0001 C CNN
-F 1 "+5V" V 1965 7528 50  0000 L CNN
-F 2 "" H 1950 7400 50  0001 C CNN
-F 3 "" H 1950 7400 50  0001 C CNN
-	1    1950 7400
+P 1800 7150
+F 0 "#PWR0253" H 1800 7000 50  0001 C CNN
+F 1 "+5V" V 1815 7278 50  0000 L CNN
+F 2 "" H 1800 7150 50  0001 C CNN
+F 3 "" H 1800 7150 50  0001 C CNN
+	1    1800 7150
 	0    1    1    0   
 $EndComp
 $Comp
@@ -16003,7 +16003,7 @@ Wire Wire Line
 Wire Wire Line
 	11700 8800 11850 8800
 NoConn ~ 16900 8800
-Text GLabel 1400 6000 0    50   Input ~ 0
+Text GLabel 1050 6000 0    50   Input ~ 0
 LED_strip
 Connection ~ 13050 6100
 Wire Wire Line
@@ -19203,8 +19203,8 @@ F 3 "" H 3750 8550 50  0001 C CNN
 	0    1    1    0   
 $EndComp
 Wire Wire Line
-	1950 7500 1950 7600
-Connection ~ 1950 7600
+	1800 7250 1800 7350
+Connection ~ 1800 7350
 Connection ~ 14800 9100
 Connection ~ 14800 8500
 $Comp
@@ -19259,6 +19259,44 @@ Wire Wire Line
 	14450 8750 14450 8800
 Wire Wire Line
 	14450 8800 14500 8800
+Wire Wire Line
+	1400 6000 1150 6000
+$Comp
+L Device:R_US R414
+U 1 1 6FD02D22
+P 1150 5850
+F 0 "R414" H 1218 5896 50  0000 L CNN
+F 1 "10k" H 1218 5805 50  0000 L CNN
+F 2 "Diode_SMD:D_0603_1608Metric_Pad1.05x0.95mm_HandSolder" V 1190 5840 50  0001 C CNN
+F 3 "~" H 1150 5850 50  0001 C CNN
+	1    1150 5850
+	1    0    0    -1  
+$EndComp
+Connection ~ 1150 6000
+Wire Wire Line
+	1150 6000 1050 6000
+$Comp
+L power:GND #PWR0317
+U 1 1 6FD0902B
+P 1150 5700
+F 0 "#PWR0317" H 1150 5450 50  0001 C CNN
+F 1 "GND" H 1155 5527 50  0000 C CNN
+F 2 "" H 1150 5700 50  0001 C CNN
+F 3 "" H 1150 5700 50  0001 C CNN
+	1    1150 5700
+	-1   0    0    1   
+$EndComp
+$Comp
+L LED-Cube:Terminal_block TB1
+U 1 1 61EB8D37
+P 1550 7650
+F 0 "TB1" V 1550 8050 50  0000 R CNN
+F 1 "Terminal_block" V 1650 8450 50  0000 R CNN
+F 2 "LED-Cube:Terminal_block" H 1550 7650 50  0001 C CNN
+F 3 "" H 1550 7650 50  0001 C CNN
+	1    1550 7650
+	0    -1   -1   0   
+$EndComp
 Wire Bus Line
 	11300 3500 16750 3500
 Wire Bus Line
@@ -19361,4 +19399,26 @@ Wire Bus Line
 	20850 5750 24450 5750
 Wire Bus Line
 	20850 3750 24450 3750
+$Comp
+L power:+5V #PWR0318
+U 1 1 626C15A3
+P 1650 7550
+F 0 "#PWR0318" H 1650 7400 50  0001 C CNN
+F 1 "+5V" V 1665 7678 50  0000 L CNN
+F 2 "" H 1650 7550 50  0001 C CNN
+F 3 "" H 1650 7550 50  0001 C CNN
+	1    1650 7550
+	0    1    1    0   
+$EndComp
+$Comp
+L power:GND #PWR0319
+U 1 1 626C7999
+P 1650 7750
+F 0 "#PWR0319" H 1650 7500 50  0001 C CNN
+F 1 "GND" V 1655 7622 50  0000 R CNN
+F 2 "" H 1650 7750 50  0001 C CNN
+F 3 "" H 1650 7750 50  0001 C CNN
+	1    1650 7750
+	0    -1   -1   0   
+$EndComp
 $EndSCHEMATC
