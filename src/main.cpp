@@ -29,7 +29,7 @@ uint8_t brightnessStart = 0;
 
 void setup() {
     SPI.begin();
-    Serial.begin(9600);
+    // Serial.begin(9600);
     pinMode(oe, OUTPUT);
     pinMode(latch, OUTPUT);
     pinMode(reset, OUTPUT);
@@ -37,15 +37,15 @@ void setup() {
     digitalWrite(latch, LOW);
     digitalWrite(reset, HIGH);
 
-    timer = timerBegin(0, 40, true);
-    timerAttachInterrupt(timer, &OnTimerInterrupt, true);
-    timerAlarmWrite(timer, timerInterruptAt, true);
-    timerAlarmEnable(timer);
+    // timer = timerBegin(0, 40, true);
+    // timerAttachInterrupt(timer, &OnTimerInterrupt, true);
+    // timerAlarmWrite(timer, timerInterruptAt, true);
+    // timerAlarmEnable(timer);
 
-    UpdateData();
+    // UpdateData();
 
-    Serial.print("CPU freq: ");
-    Serial.println(ESP.getCpuFreqMHz());
+    // Serial.print("CPU freq: ");
+    // Serial.println(ESP.getCpuFreqMHz());
 }
 
 void UpdateData()
@@ -125,34 +125,51 @@ void loop() {
                 break;
         }
     }
-    static uint32_t lastTouchTime = 0;
-    if (micros() - 500000 >= lastTouchTime)
-    {
-        lastTouchTime = micros();
-        Serial.println(touchRead(15));
-    }
+    // static uint32_t lastTouchTime = 0;
+    // if (micros() - 500000 >= lastTouchTime)
+    // {
+    //     lastTouchTime = micros();
+    //     Serial.println(touchRead(15));
+    // }
 
-    portENTER_CRITICAL(&timerMux);
-    UpdateData();
-    portEXIT_CRITICAL(&timerMux);
+    static uint8_t t = 1;
+
+    SPI.beginTransaction(setting);
+    SPI.transfer(t);
+    SPI.transfer(~255);
+    SPI.transfer(~255);
+    SPI.transfer(~255);
+    GPIO.out_w1ts = latchPin;
+    GPIO.out_w1tc = latchPin;
+    SPI.endTransaction();
+    if (t == 1 << 7)
+        t = 1;
+    else
+        t <<= 1;
     
-    static uint32_t tttt = 0;
-    static uint32_t lastTime = 0;
-    if (micros() - lastTime >= 1000000)
-    {
-        lastTime = micros();
+    delay(100);
 
-        Serial.print("output changes: ");
-        Serial.println(t);
-        Serial.print("hz: ");
-        Serial.println(t / 8.0f);
-        t = 0;
-        Serial.print("interrupt count: ");
-        Serial.println(interruptCounter);
-        interruptCounter = 0;
-        Serial.print("ns taken to update: ");
-        Serial.println(tttt);
-    }
+    // portENTER_CRITICAL(&timerMux);
+    // UpdateData();
+    // portEXIT_CRITICAL(&timerMux);
+    
+    // static uint32_t tttt = 0;
+    // static uint32_t lastTime = 0;
+    // if (micros() - lastTime >= 1000000)
+    // {
+    //     lastTime = micros();
+
+    //     Serial.print("output changes: ");
+    //     Serial.println(t);
+    //     Serial.print("hz: ");
+    //     Serial.println(t / 8.0f);
+    //     t = 0;
+    //     Serial.print("interrupt count: ");
+    //     Serial.println(interruptCounter);
+    //     interruptCounter = 0;
+    //     Serial.print("ns taken to update: ");
+    //     Serial.println(tttt);
+    // }
 }
 
 void IRAM_ATTR OnTimerInterrupt()
