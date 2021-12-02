@@ -1,6 +1,7 @@
 #include <Arduino.h>
 #include <SPI.h>
-#include <analogWrite.h>
+#include <string>
+#include <FastLED.h>
 
 constexpr uint32_t latch = 17;
 constexpr uint32_t latchPin = 1 << 17;
@@ -9,27 +10,25 @@ constexpr uint32_t reset = 4;
 
 void GenerateBamData();
 void Update();
-void UpdateData();
 template <typename T>
 void PrintBinary(T v);
 void IRAM_ATTR OnTimerInterrupt();
+
 SPISettings setting(30 * pow(10, 6), MSBFIRST, SPI_MODE0);
 hw_timer_t* timer = nullptr;
 portMUX_TYPE timerMux = portMUX_INITIALIZER_UNLOCKED;
 volatile uint32_t interruptCounter = 0;
-uint32_t timerInterruptAt = 150;
+uint32_t timerInterruptAt = 10;
 
-uint8_t data[16] = {0};
-uint16_t bamData[8] = {0};
-volatile uint8_t bamCount = 0;
-volatile uint8_t currentBamDigit = 0;
-volatile uint32_t t = 0;
-
-uint8_t brightnessStart = 0;
+// [y][x][rgb]
+uint8_t data[8][8][3] = {0};
+// [y][rgb][digit]
+volatile uint8_t bamData[8][3][8] = {0};
+volatile uint32_t outputChangeCount = 0;
 
 void setup() {
     SPI.begin();
-    // Serial.begin(9600);
+    Serial.begin(38400);
     pinMode(oe, OUTPUT);
     pinMode(latch, OUTPUT);
     pinMode(reset, OUTPUT);
@@ -37,91 +36,78 @@ void setup() {
     digitalWrite(latch, LOW);
     digitalWrite(reset, HIGH);
 
-    // timer = timerBegin(0, 40, true);
-    // timerAttachInterrupt(timer, &OnTimerInterrupt, true);
-    // timerAlarmWrite(timer, timerInterruptAt, true);
-    // timerAlarmEnable(timer);
-
-    // UpdateData();
-
-    // Serial.print("CPU freq: ");
-    // Serial.println(ESP.getCpuFreqMHz());
+    timer = timerBegin(0, 80, true);
+    timerAttachInterrupt(timer, &OnTimerInterrupt, true);
+    timerAlarmWrite(timer, timerInterruptAt, true);
+    timerAlarmEnable(timer);
 }
 
-void UpdateData()
+void Update()
 {
-    static uint32_t lastUpdate = 0;
-    static uint8_t n = 0;
-    static uint8_t nn = 2;
-    if (micros() - lastUpdate >= 50000)
+    static uint32_t lastUpdateTime = 0;
+    if (micros() - lastUpdateTime >= 100*1000)
     {
-        lastUpdate = micros();
-        n += nn;
-        if (n == 128)
-            nn = -2;
-        else if (n == 0)
-            nn = 2;
-        data[0] = data[2] = n;
-        GenerateBamData();
-    }
-    // for (uint8_t i = 0; i < 16; i++)
-        // data[i] = brightnessStart + i;
+        portENTER_CRITICAL(&timerMux);
+        lastUpdateTime = micros();
 
-    // for (uint32_t i = 0; i < 16; i++)
-    // {
-    //     Serial.print(data[i]);
-    //     Serial.print(' ');
-    // }
-    // Serial.println();
-    
-    // for (uint32_t i = 0; i < 8; i++)
-    // {
-    //     PrintBinary(bamData[i]);
-    //     Serial.println();
-    // }
-    // Serial.println();
+        static uint8_t hue = 0;
+        uint8_t t = 0;
+        // https://stackoverflow.com/questions/20420065/loop-diagonally-through-two-dimensional-array
+        for(uint32_t k = 0; k < 8 * 2; k++)
+        {
+            for(uint32_t j = 0; j <= k; j++)
+            {
+                uint32_t i = k - j;
+                if(i < 8 && j < 8)
+                {
+                    CRGB rgb = CHSV(hue + 8*t, 255, 255);
+                    data[i][j][0] = rgb.r;
+                    data[i][j][1] = rgb.g;
+                    data[i][j][2] = rgb.b;
+                }
+            }
+            t++;
+        }
+        hue += 4;
+
+        GenerateBamData();
+        portEXIT_CRITICAL(&timerMux);
+    }
 }
 
 void GenerateBamData()
 {
-    for (uint32_t i = 0; i < 16; i++)
-    {
-        uint16_t digit = 1 << i;
-        uint8_t value = data[i];
-        for (uint32_t j = 0; j < 8; j++)
+    for (uint32_t y = 0; y < 8; y++)
+        for (uint32_t x = 0; x < 8; x++)
         {
-            if (value & 0x01)
-                bamData[j] |= digit;
-            else
-                bamData[j] &= ~digit;
-            value >>= 1;
+            uint8_t digit = 1 << x;
+            for (uint32_t rgb = 0; rgb < 3; rgb++)
+            {
+                uint8_t value = data[y][x][rgb];
+                for (uint32_t i = 0; i < 8; i++)
+                {
+                    if (value & 0x01)
+                        bamData[y][rgb][i] |= digit;
+                    else
+                        bamData[y][rgb][i] &= ~digit;
+                    value >>= 1;
+                }
+            }
         }
-    }
 }
 
-uint16_t delayTime = 100;
 void loop() {
+    static char sBuf[64] = {0};
     if (Serial.available())
     {
-        char in = Serial.read();
-        switch (in)
+        uint32_t count = Serial.readBytesUntil('\0', sBuf, 64);
+        sBuf[count] = '\0';
+        switch (sBuf[0])
         {
-            case '=':
-                brightnessStart++;
-                UpdateData();
-                break;
-            case '-':
-                brightnessStart--;
-                UpdateData();
-                break;
-            case '[':
-                if (timerInterruptAt > 50)
-                    timerInterruptAt -= 50;
-                timerAlarmWrite(timer, timerInterruptAt, true);
-                break;
-            case ']':
-                timerInterruptAt += 50;
-                timerAlarmWrite(timer, timerInterruptAt, true);
+            case 't':
+                char* end = &sBuf[count];
+                uint32_t num = std::strtoul(&sBuf[1], &end, 10);
+                timerAlarmWrite(timer, num, true);
                 break;
         }
     }
@@ -132,26 +118,7 @@ void loop() {
     //     Serial.println(touchRead(15));
     // }
 
-    static uint8_t t = 1;
-
-    SPI.beginTransaction(setting);
-    SPI.transfer(t);
-    SPI.transfer(~255);
-    SPI.transfer(~255);
-    SPI.transfer(~255);
-    GPIO.out_w1ts = latchPin;
-    GPIO.out_w1tc = latchPin;
-    SPI.endTransaction();
-    if (t == 1 << 7)
-        t = 1;
-    else
-        t <<= 1;
-    
-    delay(100);
-
-    // portENTER_CRITICAL(&timerMux);
-    // UpdateData();
-    // portEXIT_CRITICAL(&timerMux);
+    Update();
     
     // static uint32_t tttt = 0;
     // static uint32_t lastTime = 0;
@@ -160,10 +127,10 @@ void loop() {
     //     lastTime = micros();
 
     //     Serial.print("output changes: ");
-    //     Serial.println(t);
+    //     Serial.println(outputChangeCount);
     //     Serial.print("hz: ");
     //     Serial.println(t / 8.0f);
-    //     t = 0;
+    //     outputChangeCount = 0;
     //     Serial.print("interrupt count: ");
     //     Serial.println(interruptCounter);
     //     interruptCounter = 0;
@@ -174,48 +141,36 @@ void loop() {
 
 void IRAM_ATTR OnTimerInterrupt()
 {
+    static uint8_t bamCount = 0;
+    static uint8_t currentBamDigit = 0;
+    static uint8_t currentY = 0;
+
     portENTER_CRITICAL_ISR(&timerMux);
     interruptCounter++;
 
     bamCount++;
-    if ((bamCount + 1) == (1 << currentBamDigit))
+    if (bamCount == (1 << currentBamDigit))
     {
         SPI.beginTransaction(setting);
-        SPI.transfer16(bamData[currentBamDigit]);
+        SPI.transfer(1 << currentY);
+        SPI.transfer(~bamData[currentY][0][currentBamDigit]);
+        SPI.transfer(~bamData[currentY][1][currentBamDigit]);
+        SPI.transfer(~bamData[currentY][2][currentBamDigit]);
         GPIO.out_w1ts = latchPin;
         GPIO.out_w1tc = latchPin;
         SPI.endTransaction();
-        currentBamDigit++;
-        if (currentBamDigit >= 8)
-            currentBamDigit = 0;
-        t++;
+        outputChangeCount++;
+        currentY++;
+        if (currentY >= 8)
+        {
+            currentY = 0;
+            currentBamDigit++;
+            if (currentBamDigit >= 8)
+                currentBamDigit = 0;
+        }
+        bamCount = 0;
     }
-
     portEXIT_CRITICAL_ISR(&timerMux);
-}
-
-void Update()
-{
-    static uint32_t lastUpdateTime = 0;
-    if (millis() - lastUpdateTime < delayTime) return;
-    lastUpdateTime = millis();
-    static uint32_t count = 0;
-    count++;
-
-    // SPI.beginTransaction(setting);
-    // SPI.transfer16(data);
-    // GPIO.out_w1ts = latchPin;
-    // GPIO.out_w1tc = latchPin;
-    // data++;
-
-    // SPI.endTransaction();
-
-    if (millis() - lastUpdateTime >= 1000)
-    {
-        lastUpdateTime = millis();
-        Serial.println(count);
-        count = 0;
-    }
 }
 
 template <typename T>
